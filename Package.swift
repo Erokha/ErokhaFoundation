@@ -5,11 +5,23 @@ import PackageDescription
 
 let package = Package(
     name: "EFoundation",
+    platforms: [
+        .iOS(.v14)
+    ],
     products: [
         // Products define the executables and libraries a package produces, and make them visible to other packages.
         .library(
             name: "EFoundation",
-            targets: ["EFoundation"]),
+            targets: ["EFoundation"]
+        ),
+        .library(
+            name: "EFNetwork",
+            targets: ["EFNetwork"]
+        ),
+        .library(
+            name: "EFStorage",
+            targets: ["EFStorage"]
+        )
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -20,9 +32,23 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages this package depends on.
         .target(
             name: "EFoundation",
-            dependencies: []),
+            dependencies: []
+        ),
+        .target(
+            name: "EFNetwork",
+            dependencies: []
+        ),
+        .target(
+            name: "EFStorage",
+            dependencies: []
+        ),
         .testTarget(
             name: "EFoundationTests",
-            dependencies: ["EFoundation"]),
+            dependencies: ["EFoundation"]
+        ),
+        .testTarget(
+            name: "EFStorageTests",
+            dependencies: ["EFStorage"]
+        )
     ]
 )
