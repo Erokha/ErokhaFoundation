@@ -10,14 +10,14 @@ public class EFUserDefaultSignleValueStorage<Item: Codable>: EFSingleValueStorag
     }
     
     public func save(_ item: Item) {
-        guard let data = try? JSONEncoder().encode(item) else { return }
+        guard let data = try? EFCodersProvider.defaultEncoder.encode(item) else { return }
         userdefaults.setValue(data, forKey: key)
     }
     
     public func restore() -> Item? {
         guard
             let data = userdefaults.value(forKey: key) as? Data,
-            let decoded = try? JSONDecoder().decode(Item.self, from: data)
+            let decoded = try? EFCodersProvider.defaultDecoder.decode(Item.self, from: data)
         else {
             return nil
         }
@@ -40,14 +40,14 @@ public class EFUserDefaultMultiValueStorage<Item: Codable>: EFMultiValueStorage 
     private let userdefaults = UserDefaults.standard
 
     public func save(_ item: Item, id: String) {
-        guard let data = try? JSONEncoder().encode(item) else { return }
+        guard let data = try? EFCodersProvider.defaultEncoder.encode(item) else { return }
         userdefaults.set(data, forKey: key(id: id))
     }
 
     public func restore(id: String) -> Item? {
         guard
             let data = userdefaults.value(forKey: key(id: id)) as? Data,
-            let decoded = try? JSONDecoder().decode(Item.self, from: data)
+            let decoded = try? EFCodersProvider.defaultDecoder.decode(Item.self, from: data)
         else {
             return nil
         }
