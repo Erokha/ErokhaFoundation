@@ -1,5 +1,6 @@
 import Foundation
 
+/// Use `AnyEFSingleValueStorage` for type-erasure
 public protocol EFSingleValueStorage {
     associatedtype Item = Codable
 
@@ -8,6 +9,7 @@ public protocol EFSingleValueStorage {
     func clear()
 }
 
+/// Use `AnyEFSingleValueStorage` for type-erasure
 public protocol EFMultiValueStorage {
     associatedtype Item = Codable
 
@@ -16,4 +18,3 @@ public protocol EFMultiValueStorage {
     @discardableResult
     func clear(id: String) -> Item?
 }
-
