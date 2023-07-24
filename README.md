@@ -2,13 +2,13 @@
 
 A small set of tools that I use in my pet projects to simplify the routine
 
-## EFNetwork
+# EFNetwork
 A set of classes for working with the network. Small, lightweight networking library. It covers the tasks that I need. The main requirements I had:
 - Working with async/await
 - Possibility to have a fallback
 - Ability to decode different DTOs to different response codes
   
-### Creating Network Manager
+## Creating Network Manager
 
 ```swift
 func makeManager() -> EFNetworkManager {
@@ -25,7 +25,7 @@ or just
 return EFNetworkManager.default
 ```
 
-### Making Network request
+## Making Network request
 ```swift
 struct NetworkRequest: Encodable {
     let username: String
@@ -80,7 +80,7 @@ func status(for id: Int) async -> String {
     }
 ```
 
-### Inteceptors
+## Inteceptors
 
 You could create intecepters, if you need it
 
@@ -128,7 +128,7 @@ We have 2 type of storages: `EFSingleValueStorage` and `EFMultiValueStorage`.
 - `EFSingleValueStorage` saves only one instance, instead giving you access to it without an Id (handy for storing information that is the same throughout the application, for example, Credentials for network requests)
 - `EFMultiValueStorage` saves any amount of instances you want, but separates access to them by id
 
-### Types of Storages
+## Types of Storages
 - `.userDefaults` - writes to UserDefaults...
 - `.file` - wirtes all data to file
 - `.security` - writes to keychain
@@ -145,9 +145,9 @@ Creating multi-value Storages
 - `EFStorageFactory<User>.singleValueStorage.file` - stores multiply users in multiply files
 - `EFStorageFactory<User>.singleValueStorage.security` - stores multiply users in keychain
 
-#### It is also important to note that the same User can be in both single-value storage and multi-value storage. In other words - single-value storage and multi-value storage spaces do not intersect
+## It is also important to note that the same User can be in both single-value storage and multi-value storage. In other words - single-value storage and multi-value storage spaces do not intersect
   
-### Saving item
+## Saving item
 ```swift
 func save(user: User) {
     let storage = EFStorageFactory<EFStorageTestStruct>.singleValueStorage.file
@@ -163,7 +163,7 @@ func save(user: User) {
 ```
 simple, right? 🥺👉👈
 
-### Restoring item
+## Restoring item
 ```swift
 func greetUser() -> String {
     guard let user = EFStorageFactory<EFStorageTestStruct>.singleValueStorage.file.restore() else {
