@@ -88,11 +88,11 @@ Basic interceptor for authenticating requests:
 
 ```swift
 struct AuthInterceptor: EFRequestInterceptor {
-    let token: String
+    let authManager: AuthManager
     
     public func intercept(request: URLRequest) -> URLRequest {
         var copy = request
-        copy.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        copy.setValue("Bearer \(authManager.token)", forHTTPHeaderField: "Authorization")
         return copy
     }
 }
@@ -101,8 +101,48 @@ struct AuthInterceptor: EFRequestInterceptor {
 func makeManager() -> EFNetworkManager {
     return EFNetworkManager(
         session: URLSession.shared,
-        requestInterceptors: [AuthInterceptor("some token")],
+        requestInterceptors: [AuthManager.shared],
         responseInterceptors: []
+    )
+}
+```
+
+Also Response Interceptor: 
+
+```swift
+struct UnauthorizedRetrier: EFResponseInterceptor {
+    let authManager: AuthManager
+
+    func intercept<ReturnType>(
+        manager: EFNetworkManager,
+        request: URLRequest?,
+        response: EFNetworkAsyncResponse<ReturnType>
+    ) async -> EFNetworkAsyncResponse<ReturnType> {
+        guard let httpResponse = response.httpResponse else {
+            return response
+        }
+        if httpResponse.statusCode == 401 {
+            authManager.reAuthorize()
+            return await manager.retry(urlRequest: request)
+        }
+        return response
+    }
+}
+
+// And pass this intercepter to Network Manager (see Creating Network Manager)
+func makeManager() -> EFNetworkManager {
+    return EFNetworkManager(
+        session: URLSession.shared,
+        requestInterceptors: [
+            AuthInterceptor(
+                authManager: AuthManager.shared // better not use singletones, just for example
+            )
+        ], 
+        responseInterceptors: [
+            UnauthorizedRetrier(
+                authManager: AuthManager.shared // better not use singletones, just for example
+            )
+        ]
     )
 }
 ```

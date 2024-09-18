@@ -7,17 +7,20 @@ public struct EFNetworkAsyncRequest {
     private let session: URLSession
     private let request: URLRequest?
     private let interceptors: [EFResponseInterceptor]
+    private let madeManager: EFNetworkManager
     
     // MARK: - Init
     
     init(
         session: URLSession,
         request: URLRequest?,
-        interceptors: [EFResponseInterceptor]
+        interceptors: [EFResponseInterceptor],
+        madeManager: EFNetworkManager
     ) {
         self.session = session
         self.request = request
         self.interceptors = interceptors
+        self.madeManager = madeManager
     }
     
     func response<ReturnType>(
@@ -27,26 +30,36 @@ public struct EFNetworkAsyncRequest {
             let request = request,
             let (data, urlResponse) = try? await self.session.data(for: request)
         else {
-            return intercept(with: nil) ?? EFNetworkAsyncResponse(response: nil, data: nil)
+            return await intercept(
+                with: EFNetworkAsyncResponse(
+                    response: nil,
+                    data: nil
+                )
+            )
         }
         
-        guard let httpUrlResponse = urlResponse as? HTTPURLResponse else {
-            return intercept(with: nil) ?? EFNetworkAsyncResponse(response: nil, data: data)
-        }
-        
-        return intercept(with: httpUrlResponse) ?? EFNetworkAsyncResponse(response: httpUrlResponse, data: data)
+        return await intercept(
+            with: EFNetworkAsyncResponse(
+                response: urlResponse as? HTTPURLResponse,
+                data: data
+            )
+        )
     }
     
     private func intercept<ReturnType>(
-        with response: HTTPURLResponse?,
+        with response: EFNetworkAsyncResponse<ReturnType>,
         shouldMapResultTo: ReturnType.Type = ReturnType.self
-    ) -> EFNetworkAsyncResponse<ReturnType>? {
+    ) async -> EFNetworkAsyncResponse<ReturnType> {
+        guard let request else { return response }
+        var interecpted = response
         for interceptor in interceptors {
-            if !interceptor.intercept(response: response) {
-                return EFNetworkAsyncResponse(response: nil, data: nil)
-            }
+            interecpted = await interceptor.intercept(
+                manager: madeManager,
+                request: request,
+                response: interecpted
+            )
         }
-        return nil
+        return interecpted
     }
 
 }

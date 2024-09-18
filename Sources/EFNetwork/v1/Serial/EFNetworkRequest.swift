@@ -154,6 +154,7 @@ public final class EFNetworkRequest {
         return anyHandlerResponsed
     }
     
+    @discardableResult
     private func notifyHandlerIfNeeded(
         handler: StatedHandler,
         data: Data,
