@@ -10,15 +10,15 @@ public final class EFNetworkAsyncResponse<ReturnType> {
     
     // MARK: - Private feids
     
-    private let response: HTTPURLResponse?
-    private let data: Data?
+    let httpResponse: HTTPURLResponse?
+    let data: Data?
     private var result: ReturnType?
     
-    private lazy var fallbackData = FallbackData(response: response, data: data)
+    private lazy var fallbackData = FallbackData(response: httpResponse, data: data)
     // MARK: - Init
     
     init(response: HTTPURLResponse?, data: Data?) {
-        self.response = response
+        self.httpResponse = response
         self.data = data
         self.result = nil
     }
@@ -33,8 +33,8 @@ public final class EFNetworkAsyncResponse<ReturnType> {
     ) -> EFNetworkAsyncResponse {
         guard
             let data = data,
-            let response = response,
-            response.statusCode == statusCode,
+            let httpResponse,
+            httpResponse.statusCode == statusCode,
             result == nil
         else { return self }
         
@@ -52,8 +52,8 @@ public final class EFNetworkAsyncResponse<ReturnType> {
     ) async -> EFNetworkAsyncResponse {
         guard
             let data = data,
-            let response = response,
-            response.statusCode == statusCode,
+            let httpResponse,
+            httpResponse.statusCode == statusCode,
             result == nil
         else { return self }
         
@@ -69,8 +69,8 @@ public final class EFNetworkAsyncResponse<ReturnType> {
         completion: @escaping () async -> ReturnType
     ) async -> EFNetworkAsyncResponse {
         guard
-            let response = response,
-            response.statusCode == statusCode,
+            let httpResponse,
+            httpResponse.statusCode == statusCode,
             result == nil
         else { return self }
         

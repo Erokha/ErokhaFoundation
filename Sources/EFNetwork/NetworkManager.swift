@@ -4,9 +4,14 @@ public protocol EFRequestInterceptor {
     func intercept(request: URLRequest) -> URLRequest
 }
 
-public protocol EFResponseInterceptor {
-    func intercept(response: HTTPURLResponse?) -> Bool
+public protocol EFResponseInterceptor {    
+    func intercept<ReturnType>(
+        manager: EFNetworkManager,
+        request: URLRequest?,
+        response: EFNetworkAsyncResponse<ReturnType>
+    ) async -> EFNetworkAsyncResponse<ReturnType>
 }
+
 
 public struct EFNetworkManager {
     
@@ -62,6 +67,15 @@ public struct EFNetworkManager {
         return await request.response()
     }
     
+    // MARK: - Retry
+    
+    public func retry<ReturnType>(
+        urlRequest: URLRequest?,
+        shouldMapResultTo: ReturnType.Type = ReturnType.self
+    ) async -> EFNetworkAsyncResponse<ReturnType> {
+        return await makeRequest(urlRequest: urlRequest)
+    }
+    
     // MARK: - Private methods
     
     private func request<Body: Encodable>(url: String, method: String, body: Body?) -> EFNetworkRequest {
@@ -76,10 +90,26 @@ public struct EFNetworkManager {
         shouldMapResultTo: ReturnType.Type = ReturnType.self
     ) async -> EFNetworkAsyncResponse<ReturnType> {
         let urlRequest = prepareRequest(url: url, method: method, body: body)
+        return await makeRequest(urlRequest: urlRequest)
+    }
+    
+    private func makeRequest<ReturnType>(
+        urlRequest: URLRequest?,
+        shouldMapResultTo: ReturnType.Type = ReturnType.self
+    ) async -> EFNetworkAsyncResponse<ReturnType> {
+        var interceptedRequest = urlRequest
+        if let notOptinalrequest = interceptedRequest {
+            for requestInterceptor in requestInterceptors {
+                interceptedRequest = requestInterceptor.intercept(
+                    request: notOptinalrequest
+                )
+            }
+        }
         let asyncRequest = EFNetworkAsyncRequest(
             session: session,
-            request: urlRequest,
-            interceptors: responseInterceptors
+            request: interceptedRequest,
+            interceptors: responseInterceptors,
+            madeManager: self
         )
         return await asyncRequest.response()
     }
@@ -92,11 +122,6 @@ public struct EFNetworkManager {
         }
         request?.httpMethod = method
         request?.httpBody = encodedBody
-        if let notOptinalrequest = request {
-            for requestInterceptor in requestInterceptors {
-                request = requestInterceptor.intercept(request: notOptinalrequest)
-            }
-        }
         return request
     }
     

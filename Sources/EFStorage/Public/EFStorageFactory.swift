@@ -2,16 +2,16 @@ import Foundation
 
 public struct EFStorageFactory<Item: Codable> {
     
-    public struct EFSingleValueStorageFactory<Item: Codable> {
-        public let userDefaults = EFUserDefaultSignleValueStorage<Item>()
-        public let file = EFFileBasedSingleValueStorage<Item>()
-        public let security = EFSecuritySingleValueStorage<Item>()
+    public struct EFSingleValueStorageFactory<SignleValueItem: Codable> {
+        public let userDefaults = EFUserDefaultSignleValueStorage<SignleValueItem>()
+        public let file = EFFileBasedSingleValueStorage<SignleValueItem>()
+        public let security = EFSecuritySingleValueStorage<SignleValueItem>()
     }
     
-    public struct EFMultiValueStorageFactory<Item: Codable> {
-        public let userDefaults = EFUserDefaultMultiValueStorage<Item>()
-        public let file = EFFileBasedMultiValueStorage<Item>()
-        public let security = EFSecurityMultiValueStorage<Item>()
+    public struct EFMultiValueStorageFactory<MultiValueItem: Codable> {
+        public let userDefaults = EFUserDefaultMultiValueStorage<MultiValueItem>()
+        public let file = EFFileBasedMultiValueStorage<MultiValueItem>()
+        public let security = EFSecurityMultiValueStorage<MultiValueItem>()
     }
     
     public static var singleValueStorage: EFSingleValueStorageFactory<Item> {
