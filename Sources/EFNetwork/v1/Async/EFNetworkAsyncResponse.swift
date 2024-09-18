@@ -10,8 +10,8 @@ public final class EFNetworkAsyncResponse<ReturnType> {
     
     // MARK: - Private feids
     
-    let httpResponse: HTTPURLResponse?
-    let data: Data?
+    public let httpResponse: HTTPURLResponse?
+    public let data: Data?
     private var result: ReturnType?
     
     private lazy var fallbackData = FallbackData(response: httpResponse, data: data)
